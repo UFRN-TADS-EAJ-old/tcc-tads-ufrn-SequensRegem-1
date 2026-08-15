@@ -54,10 +54,10 @@ class MetaAg_big:
 
         for index,values in saved_dc_idx:
             #print(df_[[index],[values]])
-            dc_sum += float(df_[[index],[values]])
+            dc_sum += df_[index,values]
 
         for index,values in saved_cc_idx:
-            cc_sum += float(df_[[index],[values]])
+            cc_sum += df_[index,values]
 
         cont = np.bincount(matrix_)
         variance = np.var(cont)
@@ -108,11 +108,12 @@ class MetaAg_big:
             new_population.append(second_best_individual)
 
             population = new_population
+            print(generation)
 
         return (best_individual)
 
 
-path = "data_base/bbc_text_cls_adapted.csv"
+path = "data_base/new_data_bases/bbc_text_cls_adapted_dependent_transformed_10.csv"
 
 X_train_transformed,y_train,X_test_transformed,y_test,labels,individual_lenght,matrix,le,flag = data_processor(path,True,True)
 
@@ -128,7 +129,6 @@ best_individual =Ag.genetic_algorithm(20,50,1,labels,individual_lenght,matrix,X_
 
 genome = best_individual.genome
 
-# %%
 matrix_ = matrix.copy()
 #df_ = pd.DataFrame()
 cont = 0
@@ -139,5 +139,4 @@ for index,values in enumerate(matrix_):
 
 matrix_ = [item[0] if isinstance(item, list) else item for item in matrix_]
 
-# %%
 print(confusion_matrix(y_train, matrix_))  

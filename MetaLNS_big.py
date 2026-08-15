@@ -53,10 +53,11 @@ class MetaLNS_big:
         
         return(fitness)
 
-    def large_neigborhood_search(self,individual,n_remove,X_train_transformed,matrix,generations,labels_trans,a,b,g):
+    def large_neigborhood_search(self,individual,n_remove,X_train_transformed,matrix,generations,labels_trans,a,b,g,stop_limit):
         best_fitness = float('-inf')
         best_individual = []
         fitness = 0
+        cont = 0
         
         for generation in range(generations):
             indexes = self.removal_strategy.removal(individual,n_remove)
@@ -68,22 +69,26 @@ class MetaLNS_big:
             if fitness > best_fitness:
                 best_individual = individual
                 best_fitness = fitness
+                cont=0
             else:
+                cont +=1
                 if math.exp(fitness - best_fitness) > random.random():
                     best_individual = individual
                     best_fitness = fitness
 
             print(generation)
+            if cont == stop_limit:
+                break
 
         return(best_fitness,best_individual)
 
-path = "data_base/bbc_text_cls_adapted.csv"
+path = "data_base/new_data_bases/bbc_text_cls_adapted_independent_transformed_10.csv"
 
 individual,X_train_transformed,y_train,X_test_transformed,y_test,matrix,labels_trans,le = data_processor(path,True,False)
 
 print(matrix)
 
-LNS = MetaLNS_big(insertion=ModaInsertion(),removal=ClientProximityRemoval())
+LNS = MetaLNS_big(insertion=ModaInsertion(columns=matrix),removal=ClientProximityRemoval())
 
 a = 1
 b = 1
@@ -91,7 +96,7 @@ g = 1
 
 naive_bayes_mult = MultinomialNB()
 
-best_fitness,best_individual = LNS.large_neigborhood_search(individual,3,X_train_transformed,matrix,30,labels_trans,a,b,g)
+best_fitness,best_individual = LNS.large_neigborhood_search(individual,3,X_train_transformed,matrix,2000,labels_trans,a,b,g,30)
 
 matrix_ = matrix.copy()
 

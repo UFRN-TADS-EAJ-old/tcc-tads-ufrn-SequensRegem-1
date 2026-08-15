@@ -150,11 +150,10 @@ g = 1
 
 Ag = MetaAg_small(selection=RankSelection(),crossover=PadronizedCrossover(),mutation=ScrambleMutation())
                    #genetic_algorithm(self,population_size,generations, mutation_rate,labels,len_,matrix,X_train_transformed,a,b,g)
-best_individual =Ag.genetic_algorithm(20,10,1,individual_lenght,matrix,X_train_transformed,a,b,g)
+best_individual =Ag.genetic_algorithm(20,1000,1,individual_lenght,matrix,X_train_transformed,a,b,g)
 
 #genome = le.inverse_transform(best_individual.genome)
 
-# %%
 #df_ = pd.DataFrame()
 
 choices = np.array([Ag.determinator(row, best_individual.genome[:len(row)]) for row in matrix])
@@ -168,5 +167,4 @@ choices = np.array([Ag.determinator(row, best_individual.genome[:len(row)]) for 
 # print(y_train)
 # print(choices)
 
-# %%
 print(confusion_matrix(y_train, choices))  

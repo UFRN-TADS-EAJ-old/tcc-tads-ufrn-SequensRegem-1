@@ -68,10 +68,11 @@ class MetaLNS_small:
         #print(fitness[0])
         return(fitness[0])
 
-    def large_neigborhood_search(self,individual,n_remove,X_train_transformed,matrix,generations,labels_trans,a,b,g):
+    def large_neigborhood_search(self,individual,n_remove,X_train_transformed,matrix,generations,labels_trans,a,b,g,stop_limit):
         best_fitness = float('-inf')
         best_individual = []
         fitness = 0
+        cont = 0 
         
         for generation in range(generations):
             indexes = self.removal_strategy.removal(individual,n_remove)
@@ -83,12 +84,16 @@ class MetaLNS_small:
             if fitness > best_fitness:
                 best_individual = individual
                 best_fitness = fitness
+                cont = 0
             else:
+                cont += 1
                 if math.exp(fitness - best_fitness) > random.random():
                     best_individual = individual
                     best_fitness = fitness
 
             print(generation)
+            if cont == stop_limit:
+                break
 
         return(best_fitness,best_individual)
 
@@ -102,9 +107,9 @@ a = 1
 b = 1
 g = 1
 
-LNS = MetaLNS_small(insertion=ModaInsertion(),removal=ClientProximityRemoval())
+LNS = MetaLNS_small(insertion=ModaInsertion(columns=individual),removal=SequenceRemoval())
 
-best_fitness,best_individual = LNS.large_neigborhood_search(individual,3,X_train_transformed,matrix,2000,labels_trans,a,b,g)
+best_fitness,best_individual = LNS.large_neigborhood_search(individual,3,X_train_transformed,matrix,2000,labels_trans,a,b,g,30)
 
 choices = np.array([LNS.determinator(row, best_individual[:len(row)]) for row in matrix])
 
