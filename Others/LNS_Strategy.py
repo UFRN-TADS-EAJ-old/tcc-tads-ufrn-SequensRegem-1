@@ -5,7 +5,7 @@ import numpy.typing as npt
 
 class Insertion_methods(ABC):
     @abstractmethod
-    def insertion (individual,indexes) -> np.ndarray:
+    def insertion (individual,indexes,labels) -> np.ndarray:
         pass
 
 class Removal_methods(ABC):
@@ -23,41 +23,43 @@ class RandomInsertion(Insertion_methods):
 
 class ModaInsertion(Insertion_methods):
 
-    def __init__(self, vetor):
-        self.modas = vetor
+    def __init__(self, columns):
+        self.modas = columns
 
     def insertion (self,individual,indexes,labels) -> npt.NDArray[np.int64]:
-        parts_list = []
-        for i in range(len(indexes)):
-            tiny_list = []
-            for _ in range(5):
-                tiny_list.append(random.choice(labels))
-            parts_list.append(tiny_list)
+        if np.issubdtype(self.modas.dtype, np.floating):
+            sum_ = sum(self.modas)
+            trends = []
+            for i in range(len(indexes)):
+                trends.append((sum_ + random.random())/(len(individual)+1))
 
-        for i in range(len(indexes)):
-            moda = max(set(parts_list[i]),key=parts_list[i].count)
-            individual[indexes[i]] = moda
-        
-        return(individual)
+            for index,value in enumerate(indexes):
+                individual[value] = trends[index]
+
+            return(individual)
+        else:     
+            trends = [max(moda,key=moda.count) for moda in self.modas if moda]
+
+            # for i in range(len(indexes)):
+            #     tiny_list = []
+            #     for _ in range(5):
+            #         tiny_list.append(random.choice(labels))
+            #     parts_list.append(tiny_list)
+
+            for i in indexes:
+                # moda = max(set(parts_list[i]),key=parts_list[i].count)
+                individual[i] = trends[i]
+            return(individual)
 
 class RouteRemoval(Removal_methods):
     def removal (self,individual,n_remove) -> list:
         indexes = []
-        individual_ = individual.copy()
-        labels_ = np.unique(individual_)
-        chosen = random.choice(labels_)
+        chosen = random.choice(np.unique(individual))
 
-        if n_remove == -1:    
-            for index,_ in enumerate(individual_):
-                if _ == chosen:
-                    indexes.append(index)
-        else:
-            for _ in range(n_remove):
-                for index,_ in enumerate(individual_):
-                    if _ == chosen:
-                        indexes.append(index)
-                        individual_[index] = -1
-                        break
+        indexes = np.where(individual == chosen)[0].tolist()
+
+        if n_remove != -1 and len(indexes) > n_remove:
+            indexes = indexes[:n_remove]
 
         return(indexes)
 

@@ -3,17 +3,30 @@ import numpy as np
 import random
 import math
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import confusion_matrix
 from Others.Data_processor import data_processor
 from Others.LNS_Strategy import *
+from Save_results import Save_results
 
 class MetaLNS_small:
-    def __init__(self, insertion:Insertion_methods, removal:Removal_methods):
+    def __init__(self, insertion:Insertion_methods, removal:Removal_methods, matrix):
         self.insertion_strategy = insertion
         self.removal_strategy = removal
+        self.cc_indexes = []
+        self.dc_indexes = []
+
+        for index,values in enumerate(matrix):
+            if len(set(values)) > 1:
+                self.dc_indexes.append(index)
+            else:
+                self.cc_indexes.append(index)
+
 
     @staticmethod
     def determinator(tiny_list,individual):
+        if np.sum(individual) == 0:
+            choice = random.choices(tiny_list, k=1)[0]
+            return(choice)
+
         choice = random.choices(tiny_list, weights=individual, k=1)[0]
         return(choice)
 
@@ -21,52 +34,33 @@ class MetaLNS_small:
         matrix_ = matrix.copy()
         df_ = pd.DataFrame()
         cont = 0
-        saved_dc_idx = []
-        saved_cc_idx = []
-        dc_sum = 0
-        cc_sum = 0
-        # print("esse eh o fitnessfunc")
-        # print(individual)
 
-        genome = individual.copy()
-        #print(genome)
-        #print(matrix_)
-        #choices = np.array([])
-        choices = np.array([self.determinator(row, genome[:len(row)]) for row in matrix_])
-        #print(choices)
+        choices = np.array([self.determinator(row, individual[:len(row)]) for row in matrix_])
 
-        for index,values in enumerate(matrix_):
-            if len(values) > 1:
-                matrix_[index] = choices[cont]
-                cont+=1
-                saved_dc_idx.append((index,matrix_[index]))
-            else:
-                saved_cc_idx.append((index,matrix_[index]))
-
-        matrix_ = [item[0] if isinstance(item, list) else item for item in matrix_]
+       # matrix_ = [item[0] if isinstance(item, list) else item for item in matrix_]
 
         naive_bayes_mult.fit(X_train_transformed,choices)
-        naive_bayes_mult.predict(X_train_transformed)
+        # naive_bayes_mult.predict(X_train_transformed)
         df_ = naive_bayes_mult.predict_log_proba(X_train_transformed)
 
         #print(df_)
 
-        for index,values in saved_dc_idx:
-            dc_sum += df_[index,values]
+        dc_sum = np.sum(np.fromiter((df_[idx, choices[idx]] for idx in self.dc_indexes),dtype=int))
 
-        for index,values in saved_cc_idx:
-            cc_sum += df_[index,values]
+        cc_sum = np.sum(np.fromiter((df_[idx, matrix[idx][0]] for idx in self.cc_indexes),dtype=int))
 
         #print(matrix)
+        #olhar!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         cont = np.bincount(choices)
         variance = np.var(cont)
+        variance = np.array(variance)
 
         #list_before_sum = [max(i) for i in df_]
         #fitness = sum(list_before_sum)
 
         fitness = a*cc_sum+b*dc_sum-g*variance
-        #print(fitness[0])
-        return(fitness[0])
+        # print(fitness)
+        return(fitness)
 
     def large_neigborhood_search(self,individual,n_remove,X_train_transformed,matrix,generations,labels_trans,a,b,g,stop_limit):
         best_fitness = float('-inf')
@@ -82,7 +76,7 @@ class MetaLNS_small:
             # print(best_fitness)
             
             if fitness > best_fitness:
-                best_individual = individual
+                best_individual = individual.copy()
                 best_fitness = fitness
                 cont = 0
             else:
@@ -97,20 +91,58 @@ class MetaLNS_small:
 
         return(best_fitness,best_individual)
 
-path = "data_base/new_data_bases/bbc_text_cls_adapted_independent_transformed_10.csv"
-
-individual,X_train_transformed,y_train,X_test_transformed,y_test,matrix,labels_trans,le = data_processor(path,False,False)
-
 naive_bayes_mult = MultinomialNB()
 
-a = 1
+a = 5
 b = 1
-g = 1
+g = 0.5
 
-LNS = MetaLNS_small(insertion=ModaInsertion(columns=individual),removal=SequenceRemoval())
+percentages = [1,5,10,15,20]
 
-best_fitness,best_individual = LNS.large_neigborhood_search(individual,3,X_train_transformed,matrix,2000,labels_trans,a,b,g,30)
+data_names = [
+    "bbc_text_cls_adapted_dependent_transformed_",
+    "cyberbullying_tweets_adapted_dependent_transformed_",
+    "fake_news_train_adapted_dependent_transformed_",
+    "data_for_AI_adapted_dependent_transformed_", #Novo
+    # "humor_classification_dataset_adapted_dependent_transformed_", #
+    "IMDB_Dataset_adapted_dependent_transformed_",
+    "Emotion_classify_Data_adapted_dependent_transformed_", #Novo
+    # "News_Category_Dataset_v3_adapted_dependent_transformed_", #
+    "SMSSpamCollection_adapted_dependent_transformed_",
+    "train_SST2_dependent_transformed_",
+    "Text_classification_documents_df_file_adapted_dependent_transformed_", #Novo
+    # "train_yelp_dependent_transformed_", #
+    "Womens_Clothing_E-Commerce_Reviews_adapted_dependent_transformed_"
+]
 
-choices = np.array([LNS.determinator(row, best_individual[:len(row)]) for row in matrix])
 
-print(confusion_matrix(y_train, choices))  
+Removal_methods_list = [
+    RouteRemoval(),
+    SequenceRemoval()
+]
+
+for name in data_names:
+    for percentage in percentages:
+
+        path = f"data_base/new_data_bases/{name}{percentage}.csv"
+
+        individual,X_train_transformed,y_train,X_test_transformed,y_test,matrix,labels_trans,le = data_processor(path,False,False)
+
+        Insertion_methods_list = [
+            ModaInsertion(columns=individual),
+            RandomInsertion(),
+        ]
+
+        for insertion_method in Insertion_methods_list:
+            for removal_method in Removal_methods_list:
+
+                #LNS = MetaLNS_small(insertion=ModaInsertion(columns=individual),removal=SequenceRemoval())
+                LNS = MetaLNS_small(insertion=insertion_method,removal=removal_method,matrix=matrix)
+
+                best_fitness,best_individual = LNS.large_neigborhood_search(individual,3,X_train_transformed,matrix,2000,labels_trans,a,b,g,30)
+
+                choices = np.array([LNS.determinator(row, best_individual[:len(row)]) for row in matrix])
+
+                #print(confusion_matrix(y_train, choices))
+
+                Save_results(type=False,sub_type=False,data_name=path,y_true=y_train,y_pred=choices,methods=(insertion_method,removal_method),a=a,b=b,g=g)

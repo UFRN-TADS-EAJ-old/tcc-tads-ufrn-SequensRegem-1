@@ -13,13 +13,22 @@ class MetaAg_big:
         self.crossover_strategy = crossover
         self.mutation_strategy = mutation
 
+        self.cc_indexes = []
+        self.dc_indexes = []
+
+        for index,values in enumerate(matrix):
+            if len(set(values)) > 1:
+                self.dc_indexes.append(index)
+            else:
+                self.cc_indexes.append(index)
+
     def create_initial_population(self,size,len_,labels,matrix,X_train_transformed,a,b,g):
         population = []
         for _ in range(size):
             genome = random.choices(labels, k=len_)
             genome = np.array(genome)
             individual = Individual(genome=genome)
-            fitness = self.fitness_function(individual,matrix,X_train_transformed,a,b,g,labels)
+            fitness = self.fitness_function(individual,matrix,X_train_transformed,a,b,g)
             individual.fitness = fitness
             #individual.fitness = fitness
             #print(individual.genome)
@@ -27,40 +36,27 @@ class MetaAg_big:
             
         return population
 
-    def fitness_function(self,individual,matrix,X_train_transformed,a,b,g,labels):
+    def fitness_function(self,individual,matrix,X_train_transformed,a,b,g):
         matrix_ = matrix.copy()
         df_ = pd.DataFrame()
-        cont = 0
-        saved_dc_idx = []
-        saved_cc_idx = []
-        dc_sum = 0
-        cc_sum = 0
 
-        genome= individual.genome
+        genome= np.asarray(individual.genome, dtype=int)
 
-        for index,values in enumerate(matrix_):
-            if len(values) > 1:
-                matrix_[index] = genome[cont]
-                cont+=1
-                saved_dc_idx.append((index,matrix_[index]))
-            else:
-                saved_cc_idx.append((index,matrix_[index]))
+        matrix_[self.dc_indexes] = genome
 
         matrix_ = [item[0] if isinstance(item, list) else item for item in matrix_]
 
-        #naive_bayes_mult.fit(X_train_transformed,matrix_)
-        naive_bayes_mult.partial_fit(X_train_transformed, matrix_, classes=labels)
+        naive_bayes_mult.fit(X_train_transformed,matrix_)
+        # naive_bayes_mult.partial_fit(X_train_transformed, matrix_, classes=labels)
         df_ = naive_bayes_mult.predict_log_proba(X_train_transformed)
 
-        for index,values in saved_dc_idx:
-            #print(df_[[index],[values]])
-            dc_sum += df_[index,values]
+        dc_sum = np.sum(np.fromiter((df_[idx, matrix[idx]][0] for idx in self.dc_indexes),dtype=int))
 
-        for index,values in saved_cc_idx:
-            cc_sum += df_[index,values]
+        cc_sum = np.sum(np.fromiter((df_[idx, matrix[idx][0]] for idx in self.cc_indexes),dtype=int))
 
         cont = np.bincount(matrix_)
         variance = np.var(cont)
+        variance = np.array(variance)
 
         #list_before_sum = [max(i) for i in df_]
         #fitness = sum(list_before_sum)
@@ -71,21 +67,31 @@ class MetaAg_big:
         return(fitness)
 
 
-    def genetic_algorithm(self,population_size,generations, mutation_rate,labels,len_,matrix,X_train_transformed,a,b,g):
+    def genetic_algorithm(self,population_size,generations, mutation_rate,labels,len_,matrix,X_train_transformed,a,b,g,stop_limit):
         population = self.create_initial_population(population_size,len_,labels,matrix,X_train_transformed,a,b,g)
+        best_individual_ = None
+        best_fitness_ = float('-inf')
+        cont = 0
+
 
         for generation in range(generations):
             new_population = []
 
-            best_individual = max(population, key=lambda x: self.fitness_function(x, matrix, X_train_transformed,a,b,g,labels))
-            best_fitness = self.fitness_function(best_individual, matrix, X_train_transformed,a,b,g,labels)
+            population.sort(key=lambda x: x.fitness)
+            primary_best_individual = population[-1]
+            second_best_individual = population[-2]
 
-            #print(best_individual.genome)
-            #print(best_individual.fitness)
+            best_individual = max(population, key=lambda x: self.fitness_function(x, matrix, X_train_transformed,a,b,g))
+            best_fitness = self.fitness_function(best_individual, matrix, X_train_transformed,a,b,g)
 
-            index_best_individuals = sorted(range(len(population)), key=lambda x: population[x].fitness)
-            primary_best_individual = population[index_best_individuals[0]]
-            second_best_individual = population[index_best_individuals[1]]
+            if best_fitness > best_fitness_:
+                best_individual_ = best_individual
+                cont = 0
+            else:
+                cont += 1
+
+            if cont == stop_limit:
+                break
 
             for _ in range(int((population_size-2)/2)):
 
@@ -98,8 +104,8 @@ class MetaAg_big:
                     child_1 = self.mutation_strategy.mutation(child_1)
                     child_2 = self.mutation_strategy.mutation(child_2)
                 
-                child_1.fitness = self.fitness_function(child_1, matrix, X_train_transformed, a, b, g, labels)
-                child_2.fitness = self.fitness_function(child_2, matrix, X_train_transformed, a, b, g, labels)
+                child_1.fitness = self.fitness_function(child_1, matrix, X_train_transformed, a, b, g)
+                child_2.fitness = self.fitness_function(child_2, matrix, X_train_transformed, a, b, g)
                 
                 new_population.append(child_1)
                 new_population.append(child_2)
@@ -110,33 +116,66 @@ class MetaAg_big:
             population = new_population
             print(generation)
 
-        return (best_individual)
+        return (best_individual_)
 
-
-path = "data_base/new_data_bases/bbc_text_cls_adapted_dependent_transformed_10.csv"
-
-X_train_transformed,y_train,X_test_transformed,y_test,labels,individual_lenght,matrix,le,flag = data_processor(path,True,True)
 
 naive_bayes_mult = MultinomialNB()
 
-a = 1
+a = 5
 b = 1
-g = 1
+g = 0.5
 
-Ag = MetaAg_big(selection=TournmentSelection(),crossover=SiglePointCrossover(),mutation=DisplacementMutation())
+percentages = [1,5,10,15,20]
 
-best_individual =Ag.genetic_algorithm(20,50,1,labels,individual_lenght,matrix,X_train_transformed,a,b,g)
+data_names = [
+    "bbc_text_cls_adapted_dependent_transformed_",
+    "cyberbullying_tweets_adapted_dependent_transformed_",
+    "fake_news_train_adapted_dependent_transformed_",
+    "data_for_AI_adapted_dependent_trnasformed_", #Novo
+    # "humor_classification_dataset_adapted_dependent_transformed_", #
+    "IMDB_Dataset_adapted_dependent_transformed_",
+    "Emotion_classify_Data_adapted_transformed_", #Novo
+    # "News_Category_Dataset_v3_adapted_dependent_transformed_", #
+    "SMSSpamCollection_adapted_dependent_transformed_",
+    "train_SST2_dependent_transformed_",
+    "Text_classification_documents_df_file_adapted_transformed_" #Novo
+    # "train_yelp_dependent_transformed_", #
+    "Womens_Clothing_E-Commerce_Reviews_adapted_dependent_transformed_"
+]
 
-genome = best_individual.genome
+selection_methods_list = [
+    TournmentSelection(),
+    StochastictSelection(),
+    RankSelection()
+]
 
-matrix_ = matrix.copy()
-#df_ = pd.DataFrame()
-cont = 0
-for index,values in enumerate(matrix_):
-    if len(values) > 1:
-        matrix_[index] = genome[cont]
-        cont+=1
+crossover_method_list = [
+    SiglePointCrossover(),
+    TwoPointCrossover(),
+    PadronizedCrossover(),
+]
 
-matrix_ = [item[0] if isinstance(item, list) else item for item in matrix_]
+mutatuion_method_list = [
+    DisplacementMutation(),
+    SimpleInversionMutation(),
+    ScrambleMutation()
+]
 
-print(confusion_matrix(y_train, matrix_))  
+for name in data_names:
+    for percentage in percentages:
+
+        path = f"data_base/new_data_bases/{name}{percentage}.csv"
+
+        X_train_transformed,y_train,X_test_transformed,y_test,labels,individual_lenght,matrix,le,flag = data_processor(path,True,True)
+
+        for selection_method in selection_methods_list:
+            for crossover_method in crossover_method_list:
+                for mutation_method in mutatuion_method_list:
+                    Ag = MetaAg_big(selection=selection_method,crossover=crossover_method,mutation=mutation_method)
+                                    #genetic_algorithm(self,population_size,generations, mutation_rate,labels,len_,matrix,X_train_transformed,a,b,g)
+                    best_individual = Ag.genetic_algorithm(20,1000,0.5,labels,individual_lenght,matrix,X_train_transformed,a,b,g,30)
+
+                    print(best_individual)
+
+                    choices = np.array([Ag.determinator(row, best_individual.genome[:len(row)]) for row in matrix]) 
+                    #Save_results(type=True,sub_type=False,data_name=path,y_true=y_train,y_pred=choices,methods=(selection_method,crossover_method,mutation_method),a=a,b=b,g=g)

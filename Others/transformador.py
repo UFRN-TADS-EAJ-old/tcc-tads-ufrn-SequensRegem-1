@@ -1,7 +1,8 @@
-# Bases selecionada: bbc_text_cls_adapted, IMDB_Dataset_adapted, SMSSpamCollection_adapted, Yelp, SST2, News_Category_Dataset_v3
+# Bases selecionada: bbc_text_cls, IMDB_Dataset, SMSSpamCollection, Yelp, SST2, News_Category_Dataset_v3,
+# cyberbullying_tweets, fake_news_train, humor_classification_dataset, Womens_Clothing_E-Commerce_Reviews
 
 # Caminho para a base
-path = "data_base/bbc_text_cls_adapted.csv"
+path = "data_base/data_for_AI_adapted.csv"
 
 # Bibliotecas importadas
 import pandas as pd
@@ -20,10 +21,6 @@ elif path_1.suffix == ".parquet":
     data = pd.read_parquet(path=path)
     path_1 = path_1.with_suffix(".csv")
 
-# Variaável de acordo com a nescessidade
-data = data.rename(columns={"label":"labels"})
-data = data.rename(columns={"sentence":"text"})
-
 label = data["labels"]
 
 to_encode = list(label.unique())
@@ -41,7 +38,7 @@ if flag == True:
     encoder = OrdinalEncoder(categories = [to_encode])
     encoder.fit(data[['labels']])
 
-porcentages_turn = [1,5,10]
+porcentages_turn = [1,5,10,15,20]
 
 for percentage_turn in porcentages_turn:
 
@@ -51,38 +48,38 @@ for percentage_turn in porcentages_turn:
 
     df_2 = data[["labels","text"]]
     # Independente
-    if flag == True: 
-        for i in range(10):
-            percentage = 1 - np.random.uniform(0.4,0.6)
-            sample = label.sample(frac=percentage)
-            sample = sample.apply(lambda x: np.random.randint(0,numbers_class))
-            re_sample = pd.DataFrame(sample)
-            decoded_values = encoder.inverse_transform(re_sample).flatten()
-            column_name = f'Labels_{i}'
-            df[column_name] = label
-            df.loc[sample.index,column_name] = decoded_values
-    else:
-        for i in range(10):
-            percentage = 1 - np.random.uniform(0.4,0.6)
-            sample = label.sample(frac=percentage)
-            sample = sample.apply(lambda x: np.random.randint(0,numbers_class))
-            column_name = f'Labels_{i}'
-            df[column_name] = label
-            df.loc[sample.index,column_name] = sample
+    # if flag == True: 
+    #     for i in range(10):
+    #         percentage = 1 - np.random.uniform(0.4,0.6)
+    #         sample = label.sample(frac=percentage)
+    #         sample = sample.apply(lambda x: np.random.randint(0,numbers_class))
+    #         re_sample = pd.DataFrame(sample)
+    #         decoded_values = encoder.inverse_transform(re_sample).flatten()
+    #         column_name = f'Labels_{i}'
+    #         df[column_name] = label
+    #         df.loc[sample.index,column_name] = decoded_values
+    # else:
+    #     for i in range(10):
+    #         percentage = 1 - np.random.uniform(0.4,0.6)
+    #         sample = label.sample(frac=percentage)
+    #         sample = sample.apply(lambda x: np.random.randint(0,numbers_class))
+    #         column_name = f'Labels_{i}'
+    #         df[column_name] = label
+    #         df.loc[sample.index,column_name] = sample
 
-    indexes_1 = random.sample(population=range(0,len(data["labels"])),k=int((len(data["labels"])*percentage_turn)/100))
+    # indexes_1 = random.sample(population=range(0,len(data["labels"])),k=int((len(data["labels"])*percentage_turn)/100))
 
-    num_cols = df.shape[1] - 2
+    # num_cols = df.shape[1] - 2
 
-    values_1 = data.loc[indexes_1, ["labels"]].values
+    # values_1 = data.loc[indexes_1, ["labels"]].values
 
-    df.iloc[indexes_1, 2:] = np.tile(values_1, (1, num_cols))
+    # df.iloc[indexes_1, 2:] = np.tile(values_1, (1, num_cols))
 
-    new_path = f"{path_1.stem}_independent_transformed_{percentage_turn}{path_1.suffix}"
+    # new_path = f"{path_1.stem}_independent_transformed_{percentage_turn}{path_1.suffix}"
 
-    new_path = str(path_ / new_path)
+    # new_path = str(path_ / new_path)
 
-    df.to_csv(path_or_buf=new_path,index = False)
+    # df.to_csv(path_or_buf=new_path,index = False)
     #print(new_path)
     
     # Dependente
