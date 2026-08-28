@@ -48,6 +48,7 @@ def Save_results(type,sub_type,data_name,y_true,y_pred,methods,a,b,g):
             "Precision" : (precision_score(y_true, y_pred, average='weighted')),
             "Recall" : (recall_score(y_true, y_pred, average='weighted')),
             "F1" : (f1_score(y_true, y_pred, average='weighted')),
+            "Methods" : methods,
             "a" : a,
             "b" : b,
             "g" : g

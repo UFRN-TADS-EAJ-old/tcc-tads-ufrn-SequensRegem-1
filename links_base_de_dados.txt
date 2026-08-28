@@ -7,5 +7,15 @@
  "SMS Spam Collection Dataset": (https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset?select=spam.csv)
  
  "SST2": (https://huggingface.co/datasets/stanfordnlp/sst2)
- 
- "YELP": (https://huggingface.co/datasets/Yelp/yelp_review_full)
+
+ "Women's E-Commerce Clothing Reviews":https://www.kaggle.com/datasets/nicapotato/womens-ecommerce-clothing-reviews
+
+ "Fake vs Real News Dataset":https://www.kaggle.com/datasets/ayushmansatapathy/fake-vs-real-news-dataset
+
+ "Cyberbullying Classification":https://www.kaggle.com/datasets/andrewmvd/cyberbullying-classification
+
+ "Emotion classify":https://www.kaggle.com/datasets/abdallahwagih/emotion-dataset
+
+ "Emotion classification":https://www.kaggle.com/datasets/praveengovi/emotions-dataset-for-nlp
+
+ #"YELP": (https://huggingface.co/datasets/Yelp/yelp_review_full)

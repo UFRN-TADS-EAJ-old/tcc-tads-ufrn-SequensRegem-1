@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import random
 import numpy as np
 import numpy.typing as npt
+from itertools import islice
 
 class Insertion_methods(ABC):
     @abstractmethod
@@ -13,7 +14,10 @@ class Removal_methods(ABC):
     def removal (individual,n_remove) -> list:
         pass
 
-class RandomInsertion(Insertion_methods):
+class RandomInsertion_big(Insertion_methods):
+    # def __init__(self,small_or_big):
+    #     self.small_or_big = small_or_big
+
     def insertion (self,individual,indexes,labels) -> npt.NDArray[np.int64]:
         values = random.choices(labels,k=len(indexes))
         for index, _ in enumerate(indexes):
@@ -21,35 +25,48 @@ class RandomInsertion(Insertion_methods):
         
         return(individual)
 
-class ModaInsertion(Insertion_methods):
+class RandomInsertion_small(Insertion_methods):
+    def insertion (self,individual,indexes,labels) -> npt.NDArray[np.int64]:
+        values = [random.random() for _ in range(len(indexes))]
+        for index, _ in enumerate(indexes):
+            individual[_] = values[index]
+        
+        return(individual)
 
+class ModaInsertion_big(Insertion_methods):
     def __init__(self, columns):
         self.modas = columns
 
     def insertion (self,individual,indexes,labels) -> npt.NDArray[np.int64]:
-        if np.issubdtype(self.modas.dtype, np.floating):
-            sum_ = sum(self.modas)
-            trends = []
-            for i in range(len(indexes)):
-                trends.append((sum_ + random.random())/(len(individual)+1))
 
-            for index,value in enumerate(indexes):
-                individual[value] = trends[index]
+        trends = [max(moda,key=moda.count) for moda in self.modas if moda]
 
-            return(individual)
-        else:     
-            trends = [max(moda,key=moda.count) for moda in self.modas if moda]
+        # for i in range(len(indexes)):
+        #     tiny_list = []
+        #     for _ in range(5):
+        #         tiny_list.append(random.choice(labels))
+        #     parts_list.append(tiny_list)
 
-            # for i in range(len(indexes)):
-            #     tiny_list = []
-            #     for _ in range(5):
-            #         tiny_list.append(random.choice(labels))
-            #     parts_list.append(tiny_list)
+        for i in indexes:
+            # moda = max(set(parts_list[i]),key=parts_list[i].count)
+            individual[i] = trends[i]
+        return(individual)
 
-            for i in indexes:
-                # moda = max(set(parts_list[i]),key=parts_list[i].count)
-                individual[i] = trends[i]
-            return(individual)
+class ModaInsertion_small(Insertion_methods):
+    def __init__(self, columns):
+        self.modas = columns
+
+    def insertion (self,individual,indexes,labels) -> npt.NDArray[np.int64]:
+        sum_ = sum(self.modas)
+        trends = []
+        for i in range(len(indexes)):
+            trends.append((sum_ + random.random())/(len(individual)+1))
+
+        for index,value in enumerate(indexes):
+            # moda = max(set(parts_list[i]),key=parts_list[i].count)
+            individual[value] = trends[index]
+
+        return(individual)
 
 class RouteRemoval(Removal_methods):
     def removal (self,individual,n_remove) -> list:
@@ -78,7 +95,7 @@ class SequenceRemoval(Removal_methods):
 
         return(indexes)
 
-class ClientProximityRemoval(Removal_methods):
+class ClientProximityRemoval_big(Removal_methods):
     def removal (self,individual,n_remove) -> list:
         index = random.randrange(len(individual))
         chosen = individual[index]
@@ -98,4 +115,23 @@ class ClientProximityRemoval(Removal_methods):
                     break
 
         
+        return(indexes)
+
+class ClienteProximityRemoval_small(Removal_methods):
+    def removal (self,individual,n_remove) -> list:
+        flag = True
+
+        while flag == True:
+            space_1 = random.random()
+            space_2 = random.random()
+            if space_1 != space_2:
+                flag = False
+
+        if space_1 > space_2:
+            indexes_all = (i for i, val in enumerate(individual) if space_1 <= val <= space_2)
+            indexes = np.fromiter(islice(indexes_all, n_remove), dtype=int)
+        else:
+           indexes_all = (i for i, val in enumerate(individual) if space_1 <= val <= space_2)
+           indexes = np.fromiter(islice(indexes_all, n_remove), dtype=int)
+
         return(indexes)

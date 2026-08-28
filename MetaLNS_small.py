@@ -100,25 +100,26 @@ g = 0.5
 percentages = [1,5,10,15,20]
 
 data_names = [
-    "bbc_text_cls_adapted_dependent_transformed_",
-    "cyberbullying_tweets_adapted_dependent_transformed_",
-    "fake_news_train_adapted_dependent_transformed_",
-    "data_for_AI_adapted_dependent_transformed_", #Novo
+    # "bbc_text_cls_adapted_dependent_transformed_",
+    # "cyberbullying_tweets_adapted_dependent_transformed_",
+    # "fake_news_train_adapted_dependent_transformed_",
+    # "data_for_AI_adapted_dependent_transformed_", #Novo
     # "humor_classification_dataset_adapted_dependent_transformed_", #
-    "IMDB_Dataset_adapted_dependent_transformed_",
     "Emotion_classify_Data_adapted_dependent_transformed_", #Novo
     # "News_Category_Dataset_v3_adapted_dependent_transformed_", #
     "SMSSpamCollection_adapted_dependent_transformed_",
-    "train_SST2_dependent_transformed_",
-    "Text_classification_documents_df_file_adapted_dependent_transformed_", #Novo
+    # "train_SST2_dependent_transformed_",#
+    "Emotion_classification_adapted_dependent_transformed_",
+    # "Text_classifi1cation_documents_df_file_adapted_dependent_transformed_", #Novo
     # "train_yelp_dependent_transformed_", #
+    "IMDB_Dataset_adapted_dependent_transformed_",
     "Womens_Clothing_E-Commerce_Reviews_adapted_dependent_transformed_"
 ]
 
 
 Removal_methods_list = [
-    RouteRemoval(),
-    SequenceRemoval()
+    SequenceRemoval(),
+    ClienteProximityRemoval_small()
 ]
 
 for name in data_names:
@@ -129,20 +130,21 @@ for name in data_names:
         individual,X_train_transformed,y_train,X_test_transformed,y_test,matrix,labels_trans,le = data_processor(path,False,False)
 
         Insertion_methods_list = [
-            ModaInsertion(columns=individual),
-            RandomInsertion(),
+            ModaInsertion_small(columns=individual),
+            RandomInsertion_small(),
         ]
 
         for insertion_method in Insertion_methods_list:
             for removal_method in Removal_methods_list:
+                for _ in range(30):
 
-                #LNS = MetaLNS_small(insertion=ModaInsertion(columns=individual),removal=SequenceRemoval())
-                LNS = MetaLNS_small(insertion=insertion_method,removal=removal_method,matrix=matrix)
+                    #LNS = MetaLNS_small(insertion=ModaInsertion(columns=individual),removal=SequenceRemoval())
+                    LNS = MetaLNS_small(insertion=insertion_method,removal=removal_method,matrix=matrix)
 
-                best_fitness,best_individual = LNS.large_neigborhood_search(individual,3,X_train_transformed,matrix,2000,labels_trans,a,b,g,30)
+                    best_fitness,best_individual = LNS.large_neigborhood_search(individual,3,X_train_transformed,matrix,2000,labels_trans,a,b,g,30)
 
-                choices = np.array([LNS.determinator(row, best_individual[:len(row)]) for row in matrix])
+                    choices = np.array([LNS.determinator(row, best_individual[:len(row)]) for row in matrix])
 
-                #print(confusion_matrix(y_train, choices))
+                    #print(confusion_matrix(y_train, choices))
 
-                Save_results(type=False,sub_type=False,data_name=path,y_true=y_train,y_pred=choices,methods=(insertion_method,removal_method),a=a,b=b,g=g)
+                    Save_results(type=False,sub_type=False,data_name=path,y_true=y_train,y_pred=choices,methods=(insertion_method,removal_method),a=a,b=b,g=g)
