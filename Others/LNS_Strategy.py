@@ -3,6 +3,7 @@ import random
 import numpy as np
 import numpy.typing as npt
 from itertools import islice
+from collections import Counter
 
 class Insertion_methods(ABC):
     @abstractmethod
@@ -39,7 +40,7 @@ class ModaInsertion_big(Insertion_methods):
 
     def insertion (self,individual,indexes,labels) -> npt.NDArray[np.int64]:
 
-        trends = [max(moda,key=moda.count) for moda in self.modas if moda]
+        trends = [Counter(moda).most_common(1)[0][0] for moda in self.modas]
 
         # for i in range(len(indexes)):
         #     tiny_list = []

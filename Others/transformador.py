@@ -2,7 +2,7 @@
 # cyberbullying_tweets, fake_news_train, humor_classification_dataset, Womens_Clothing_E-Commerce_Reviews
 
 # Caminho para a base
-path = "data_base/data_for_AI_adapted.csv"
+path = "data_base/Emotion_classification_adapted.csv"
 
 # Bibliotecas importadas
 import pandas as pd
