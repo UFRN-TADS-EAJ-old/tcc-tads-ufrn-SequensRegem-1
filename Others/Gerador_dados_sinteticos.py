@@ -2,7 +2,7 @@
 # cyberbullying_tweets, fake_news_train, humor_classification_dataset, Womens_Clothing_E-Commerce_Reviews
 
 # Caminho para a base
-path = "data_base/Womens_Clothing_E-Commerce_Reviews_adapted.csv"
+path = "data_base_2/Womens_Clothing_E-Commerce_Reviews_adapted.csv"
 
 # Bibliotecas importadas
 import pandas as pd
@@ -84,7 +84,7 @@ for percentage_turn in porcentages_turn:
     
     # Dependente
     if flag == True:
-        percentage = 1 - np.random.uniform(0.4,0.6)
+        percentage = 1 - np.random.uniform(0.2,0.4)
         sample = label.sample(frac=percentage)
         sample = sample.apply(lambda x: np.random.randint(0,numbers_class))
         re_sample = pd.DataFrame(sample)
@@ -94,7 +94,7 @@ for percentage_turn in porcentages_turn:
         df_2.loc[sample.index,column_name] = decoded_values
 
         for i in range(9):
-            percentage = 1 - np.random.uniform(0.4,0.6)
+            percentage = 1 - np.random.uniform(0.2,0.4)
             label_2 = df_2[f"Labels_{i+10}"]
             sample = label_2.sample(frac=percentage)
             sample = sample.apply(lambda x: np.random.randint(0,numbers_class))
@@ -104,7 +104,7 @@ for percentage_turn in porcentages_turn:
             df_2[column_name] = label_2
             df_2.loc[sample.index,column_name] = decoded_values
     else:
-        percentage = 1 - np.random.uniform(0.4,0.6)
+        percentage = 1 - np.random.uniform(0.2,0.4)
         sample = label.sample(frac=percentage)
         sample = sample.apply(lambda x: np.random.randint(0,numbers_class))
         column_name = f'Labels_{10}'
@@ -112,7 +112,7 @@ for percentage_turn in porcentages_turn:
         df_2.loc[sample.index,column_name] = sample
         
         for i in range(10):
-            percentage = 1 - np.random.uniform(0.4,0.6)
+            percentage = 1 - np.random.uniform(0.2,0.4)
             label_2 = df_2[f"Labels_{i+10}"]
             sample = label.sample(frac=percentage)
             sample = sample.apply(lambda x: np.random.randint(0,numbers_class))
