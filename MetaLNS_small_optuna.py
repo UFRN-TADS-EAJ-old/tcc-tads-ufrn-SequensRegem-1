@@ -80,7 +80,7 @@ class MetaLNS_small:
         return fitness
 
     def large_neigborhood_search(self, individual, n_remove, X_train_transformed, matrix, generations,
-                                 labels_trans, a, b, g, stop_limit, T_s, T_f):
+                                 labels_trans, a, b, g, stop_limit):
         best_fitness = float('-inf')
         best_individual = []
         fitness = 0
@@ -90,8 +90,8 @@ class MetaLNS_small:
             indexes = self.removal_strategy.removal(individual, n_remove)
             individual = self.insertion_strategy.insertion(individual, indexes, labels_trans)
             fitness = self.fitness_function(individual, X_train_transformed, matrix, a, b, g)
-            mi = (T_f/T_s)**(1/(generations-1))
-            T_moment = T_s*mi**generation
+            # mi = (T_f/T_s)**(1/(generations-1))
+            # T_moment = T_s*mi**generation
 
             if fitness > best_fitness:
                 best_individual = individual.copy()
@@ -100,7 +100,7 @@ class MetaLNS_small:
             else:
                 cont += 1
                 delta = fitness - best_fitness
-                if math.exp(delta/T_moment) > random.random():
+                if math.exp(delta) > random.random():
                     best_individual = individual
                     best_fitness = fitness
 
@@ -143,7 +143,7 @@ INSERCOES = ("moda", "aleatoria")
 REMOCOES = ("sequence", "proximidade")
 
 # a, b, g agora são escolhidos pelo Optuna (antes eram fixos: a=5, b=1, g=0.5)
-LNS_CFG = dict(n_remove=3, geracoes=2000, stop_limit=30, T_s=2, T_f=0.1)
+LNS_CFG = dict(n_remove=3, geracoes=2000, stop_limit=30)
 
 METRICA = "f1_macro"     # "f1_macro" ou "acuracia"
 N_TRIALS = 60            # trials concluídos por estudo
@@ -193,7 +193,7 @@ def avaliar_configuracao(nome, porcentagem, a, b, g, semente, cfg):
                                     mask=mask_cc, y_train=y_train)
                 _, best_individual = LNS.large_neigborhood_search(
                     individual, cfg["n_remove"], X_train, matrix, cfg["geracoes"], labels_trans,
-                    a, b, g, cfg["stop_limit"], cfg["T_s"], cfg["T_f"])
+                    a, b, g, cfg["stop_limit"])
                 if len(best_individual) == 0:
                     best_individual = individual
 

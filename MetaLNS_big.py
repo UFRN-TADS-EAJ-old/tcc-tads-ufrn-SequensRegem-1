@@ -58,7 +58,7 @@ class MetaLNS_big:
         
         return(fitness)
 
-    def large_neigborhood_search(self,individual,n_remove,X_train_transformed,matrix,generations,labels_trans,a,b,g,stop_limit,T_s,T_f):
+    def large_neigborhood_search(self,individual,n_remove,X_train_transformed,matrix,generations,labels_trans,a,b,g,stop_limit):
         best_fitness = float('-inf')
         best_individual = []
         fitness = 0
@@ -68,8 +68,8 @@ class MetaLNS_big:
             indexes = self.removal_strategy.removal(individual,n_remove)
             individual = self.insertion_strategy.insertion(individual,indexes,labels_trans)
             fitness = self.fitness_function(individual,X_train_transformed,a,b,g)
-            mi = (T_f/T_s)**(1/(generations-1))
-            T_moment = T_s*mi**generation
+            # mi = (T_f/T_s)**(1/(generations-1))
+            # T_moment = T_s*mi**generation
             # print(fitness)
             # print(best_fitness)
             
@@ -80,7 +80,7 @@ class MetaLNS_big:
             else:
                 cont +=1
                 delta = fitness - best_fitness
-                if math.exp(delta/T_moment) > random.random():
+                if math.exp(delta) > random.random():
                     best_individual = individual
                     best_fitness = fitness
 
@@ -145,7 +145,7 @@ for name in data_names:
 
                         LNS = MetaLNS_big(insertion=insertion_method,removal=removal_method,matrix=matrix,mask=mask_cc,y_train=y_train)
 
-                        best_fitness,best_individual = LNS.large_neigborhood_search(individual,3,X_train_transformed,matrix,2000,labels_trans,a,b,g,30,2,0.1)
+                        best_fitness,best_individual = LNS.large_neigborhood_search(individual,3,X_train_transformed,matrix,2000,labels_trans,a,b,g,30)
 
                         cont = 0
                         # for index,values in enumerate(matrix_2):
