@@ -122,20 +122,20 @@ class MetaLNS_small:
 PERCENTAGES = [1, 5, 10, 15, 20]
 
 data_names = [
-    # "bbc_text_cls_adapted_dependent_transformed_",
-    # "cyberbullying_tweets_adapted_dependent_transformed_",
-    # "fake_news_train_adapted_dependent_transformed_",
-    # "data_for_AI_adapted_dependent_transformed_", #Novo
+    "bbc_text_cls_adapted_dependent_transformed_",
+    "cyberbullying_tweets_adapted_dependent_transformed_",
+    "fake_news_train_adapted_dependent_transformed_",
+    "data_for_AI_adapted_dependent_transformed_", #Novo
     # # "humor_classification_dataset_adapted_dependent_transformed_", #
-    # "Emotion_classify_Data_adapted_dependent_transformed_", #Novo
+    "Emotion_classify_Data_adapted_dependent_transformed_", #Novo
     # # "News_Category_Dataset_v3_adapted_dependent_transformed_", #
     "SMSSpamCollection_adapted_dependent_transformed_",
-    #"train_SST2_dependent_transformed_",#
-    # "Emotion_classification_adapted_dependent_transformed_",
+    "train_SST2_dependent_transformed_",#
+    "Emotion_classification_adapted_dependent_transformed_",
     # # "Text_classifi1cation_documents_df_file_adapted_dependent_transformed_", #Novo
     # # "train_yelp_dependent_transformed_", #
-    # "IMDB_Dataset_adapted_dependent_transformed_",
-    # "Womens_Clothing_E-Commerce_Reviews_adapted_dependent_transformed_"
+    "IMDB_Dataset_adapted_dependent_transformed_",
+    "Womens_Clothing_E-Commerce_Reviews_adapted_dependent_transformed_"
 ]
 
 # Mesmos métodos do script original (inserção x remoção); cada trial avalia as 4 combinações e usa a média.

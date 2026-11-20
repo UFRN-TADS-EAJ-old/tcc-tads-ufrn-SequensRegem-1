@@ -298,15 +298,23 @@ class MetaLNS_big:
     def fitness_function(self, individual, X_train_transformed, matrix, a, b, g):
         individual_arr = np.asarray(individual, dtype=int)
         matrix_ = self.matrix_base.copy()
-        matrix_[self.dc_indexes] = individual_arr
+        if len(self.dc_indexes) > 0:
+            matrix_[self.dc_indexes] = individual_arr
 
         self.nb.fit(X_train_transformed, matrix_)
         df_ = self.nb.predict_log_proba(X_train_transformed)
 
-        dc_sum = np.sum(df_[self.dc_indexes, individual_arr])
-        cc_sum = np.sum(df_[self.cc_indexes, self.cc_values])
+        # Mapeia cada rótulo para o índice da coluna correspondente em self.nb.classes_
+        label_to_idx = {cls: idx for idx, cls in enumerate(self.nb.classes_)}
 
-        cont = np.bincount(matrix_)
+        dc_idx = np.array([label_to_idx.get(v, 0) for v in individual_arr], dtype=int)
+        cc_idx = np.array([label_to_idx.get(v, 0) for v in self.cc_values], dtype=int)
+        matrix_idx = np.array([label_to_idx.get(v, 0) for v in matrix_], dtype=int)
+
+        dc_sum = np.sum(df_[self.dc_indexes, dc_idx]) if len(self.dc_indexes) > 0 else 0.0
+        cc_sum = np.sum(df_[self.cc_indexes, cc_idx]) if len(self.cc_indexes) > 0 else 0.0
+
+        cont = np.bincount(matrix_idx, minlength=len(self.nb.classes_))
         variance = np.var(cont)
 
         fitness = a * cc_sum + b * dc_sum - g * variance
@@ -359,7 +367,20 @@ class MetaLNS_big:
 PERCENTAGES = [1, 5, 10, 15, 20]
 
 data_names = [
-    "train_SST2_dependent_transformed_",
+    # "bbc_text_cls_adapted_dependent_transformed_",
+    # "cyberbullying_tweets_adapted_dependent_transformed_",
+    # "fake_news_train_adapted_dependent_transformed_",
+    # "data_for_AI_adapted_dependent_transformed_", #Novo
+    # # "humor_classification_dataset_adapted_dependent_transformed_", #
+    # "Emotion_classify_Data_adapted_dependent_transformed_", #Novo
+    # # "News_Category_Dataset_v3_adapted_dependent_transformed_", #
+    # "SMSSpamCollection_adapted_dependent_transformed_",
+    # "train_SST2_dependent_transformed_",#
+    # "Emotion_classification_adapted_dependent_transformed_",
+    # # "Text_classifi1cation_documents_df_file_adapted_dependent_transformed_", #Novo
+    # # "train_yelp_dependent_transformed_", #
+    # "IMDB_Dataset_adapted_dependent_transformed_",
+    "Womens_Clothing_E-Commerce_Reviews_adapted_dependent_transformed_"
 ]
 
 INSERCOES = ("moda", "aleatoria")
