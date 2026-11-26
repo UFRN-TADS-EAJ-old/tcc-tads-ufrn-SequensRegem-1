@@ -1,0 +1,6 @@
+﻿base,infiltracao,metodo,random_state_divisao,f1_macro
+cyberbullying_tweets_adapted_dependent_transformed_,1,Majority_Voting,1,0.23243641691027497
+cyberbullying_tweets_adapted_dependent_transformed_,5,Majority_Voting,1,0.2484374070942488
+cyberbullying_tweets_adapted_dependent_transformed_,10,Majority_Voting,1,0.32145032233281495
+cyberbullying_tweets_adapted_dependent_transformed_,15,Majority_Voting,1,0.32136965182748267
+cyberbullying_tweets_adapted_dependent_transformed_,20,Majority_Voting,1,0.3744268224714202

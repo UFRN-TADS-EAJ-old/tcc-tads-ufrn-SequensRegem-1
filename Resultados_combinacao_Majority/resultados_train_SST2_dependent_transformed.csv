@@ -1,0 +1,6 @@
+﻿base,infiltracao,metodo,random_state_divisao,f1_macro
+train_SST2_dependent_transformed_,1,Majority_Voting,1,0.5362737894054997
+train_SST2_dependent_transformed_,5,Majority_Voting,1,0.5401611697512535
+train_SST2_dependent_transformed_,10,Majority_Voting,1,0.5677236642518162
+train_SST2_dependent_transformed_,15,Majority_Voting,1,0.595550961491311
+train_SST2_dependent_transformed_,20,Majority_Voting,1,0.6227333538619226

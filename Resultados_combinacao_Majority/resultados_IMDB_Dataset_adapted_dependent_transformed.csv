@@ -1,0 +1,6 @@
+﻿base,infiltracao,metodo,random_state_divisao,f1_macro
+IMDB_Dataset_adapted_dependent_transformed_,1,Majority_Voting,1,0.5354083724030089
+IMDB_Dataset_adapted_dependent_transformed_,5,Majority_Voting,1,0.5515311626774446
+IMDB_Dataset_adapted_dependent_transformed_,10,Majority_Voting,1,0.5781794531355169
+IMDB_Dataset_adapted_dependent_transformed_,15,Majority_Voting,1,0.6040312153563783
+IMDB_Dataset_adapted_dependent_transformed_,20,Majority_Voting,1,0.6362271911559221

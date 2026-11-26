@@ -1,0 +1,6 @@
+﻿base,infiltracao,metodo,random_state_divisao,f1_macro
+fake_news_train_adapted_dependent_transformed_,1,Majority_Voting,1,0.5575008754678397
+fake_news_train_adapted_dependent_transformed_,5,Majority_Voting,1,0.5768233509897842
+fake_news_train_adapted_dependent_transformed_,10,Majority_Voting,1,0.5582706069932144
+fake_news_train_adapted_dependent_transformed_,15,Majority_Voting,1,0.6037252007751734
+fake_news_train_adapted_dependent_transformed_,20,Majority_Voting,1,0.6348061666342124

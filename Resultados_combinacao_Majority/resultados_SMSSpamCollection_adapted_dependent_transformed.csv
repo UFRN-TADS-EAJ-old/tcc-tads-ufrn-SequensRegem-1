@@ -1,0 +1,6 @@
+﻿base,infiltracao,metodo,random_state_divisao,f1_macro
+SMSSpamCollection_adapted_dependent_transformed_,1,Majority_Voting,1,0.4873236775157557
+SMSSpamCollection_adapted_dependent_transformed_,5,Majority_Voting,1,0.5075528725091771
+SMSSpamCollection_adapted_dependent_transformed_,10,Majority_Voting,1,0.5130199413936142
+SMSSpamCollection_adapted_dependent_transformed_,15,Majority_Voting,1,0.5521694823915057
+SMSSpamCollection_adapted_dependent_transformed_,20,Majority_Voting,1,0.5399213724088635

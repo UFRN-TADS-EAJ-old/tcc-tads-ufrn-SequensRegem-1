@@ -1,0 +1,6 @@
+﻿base,infiltracao,metodo,random_state_divisao,f1_macro
+bbc_text_cls_adapted_dependent_transformed_,1,Majority_Voting,1,0.25190405505824087
+bbc_text_cls_adapted_dependent_transformed_,5,Majority_Voting,1,0.2811232698761929
+bbc_text_cls_adapted_dependent_transformed_,10,Majority_Voting,1,0.30632017801761097
+bbc_text_cls_adapted_dependent_transformed_,15,Majority_Voting,1,0.3756529273113782
+bbc_text_cls_adapted_dependent_transformed_,20,Majority_Voting,1,0.40123811856640534
